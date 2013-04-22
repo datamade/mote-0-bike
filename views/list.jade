@@ -6,3 +6,9 @@ div.content
                 each example in examples
                     li
                         a(href="view/#{example._id}")  #{example.name}
+            
+            h2 A List of all the Trips
+            ul.unstyled.indent
+                each trip in trips
+                    li
+                        a(href="viewtrip/#{trip._id}")  #{trip._id}

@@ -1,0 +1,13 @@
+div.content
+    div.row
+        div.span12
+            h2
+              span #{trip._id}
+              small started at #{trip.start}
+    
+    div.row
+        div.span2 LAT, LNG
+    
+    each record in trip.records
+      div.row
+          div.span2 #{record[0]}, #{record[1]}
