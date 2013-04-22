@@ -6,7 +6,7 @@ module.exports = function(mongoose) {
   var schema = new Schema({
     start: Date,
     end: Date,
-    records: Array
+    records: Object
   });
 
   return mongoose.model(collection, schema);

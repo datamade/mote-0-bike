@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-module.exports = function(app, models, mongoose){
+module.exports = function(app, models){
 
   /**
    *  Index
@@ -44,7 +44,16 @@ module.exports = function(app, models, mongoose){
 
     });
   });
-
+  
+  app.get('/map', function(req, res){
+    models.trips.find({}, function(err, trips){
+      res.render('map.jade', {
+        page: 'map',
+        trips: trips,
+        tripsjson: JSON.stringify(trips)
+      });
+    });
+  });
 
   /**
    *  View
@@ -106,13 +115,14 @@ module.exports = function(app, models, mongoose){
         throw err;
       }
 
-      var lines = csv.toString().split("\n");
+      var lines = csv.toString().split("\r\n");
 
       var records = [ ];
       for(var i=1;i<lines.length;i++){
         var line = lines[i].split(",");
         // 0=ID, 1=RUN_NUMBER, 2=DATE, 3=TIME, 4=LAT, 5=LON, 6=ALT, 7=BEARING, 8=MPH, 9=AIR, 10=TEMP, 11=HUMIDITY, 12=LIGHT
-        if(line.length != 13){
+        if(line.length < 10){
+          //console.log(line.length);
           continue;
         }
         var lat = line[4];

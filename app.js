@@ -14,7 +14,7 @@ var models = {};
 models.examples = example_model(mongoose);
 models.trips = trip_model(mongoose);
 
-require('./routes')(app, models, mongoose);
+require('./routes')(app, models);
 
 app.listen(process.env.PORT || 3000);
 console.log('app running');
