@@ -12,11 +12,8 @@ module.exports = function(app, models, mongoose){
       
       //render the index page
       res.render('index.jade', {
-          locals: {
-            title: 'Node.js Express MVR Template',
-            page: 'index',
-            examples: docs
-          }
+        page: 'index',
+        examples: docs
       });
 
     });
@@ -35,11 +32,8 @@ module.exports = function(app, models, mongoose){
       
       //render the index page
       res.render('list.jade', {
-          locals: {
-            title: 'Node.js Express MVR Template',
-            page: 'list',
-            examples: docs
-          }
+          page: 'list',
+          examples: docs
       });
 
     });
@@ -60,11 +54,8 @@ module.exports = function(app, models, mongoose){
       
       //render the view page
       res.render('view.jade', {
-          locals: {
-            title: 'Node.js Express MVR Template',
-            page: 'view',
-            example: doc
-          }
+        page: 'view',
+        example: doc
       });
 
     });
@@ -81,10 +72,7 @@ module.exports = function(app, models, mongoose){
       
       //render the add page
       res.render('add.jade', {
-          locals: {
-            title: 'Node.js Express MVR Template',
-            page: 'add'
-          }
+        page: 'add'
       });
   });
   

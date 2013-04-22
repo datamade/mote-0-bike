@@ -1,15 +1,16 @@
 var express = require('express');
-var app = module.exports = express.createServer();
 var mongoose = require('mongoose');
+var config = require('./config.js');
+var example_model = require('./models/example');
 
-
-var db_uri = process.env.MONGOLAB_URI || process.env.MONGODB_URI || config.default_db_uri;
+var db_uri = process.env.MONGOLAB_URI || process.env.MONGODB_URI || "mongodb://localhost";
 mongoose.connect(db_uri);
 
-var config = require('./config.js')(app, express);
+var app = module.exports = express.createServer();
+config(app, express);
 
 var models = {};
-models.examples = require('./models/example')(mongoose);
+models.examples = example_model(mongoose);
 
 require('./routes')(app, models, mongoose);
 
