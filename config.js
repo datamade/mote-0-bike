@@ -20,7 +20,7 @@ module.exports = function(app, express, mongoose){
   //env specific config
   app.configure('development', function(){
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-
+    app.set('view options', { pretty: true});
     exports.default_db_uri = 'mongodb://localhost/nodemvr';
   });
 
