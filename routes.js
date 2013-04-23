@@ -128,7 +128,7 @@ module.exports = function(app, models){
               }
               // show user has updated
               user.updated = new Date();
-              user.trips.push({ id: trip._id, start: trip.start });
+              user.trips.push({ id: trip._id, start: trip.start, end: trip.end });
               user.save(function(err){ });
               
               res.redirect('/viewtrip/' + trip._id);
@@ -141,7 +141,7 @@ module.exports = function(app, models){
             user.save(function(err){
               trip.user = user.id;
               trip.save(function(err){
-                user.trips = [ { id: trip.id, start: trip.start } ];
+                user.trips = [ { id: trip.id, start: trip.start, end: trip.end } ];
                 user.save(function(err){
                   res.redirect('/user/' + user._id);
                 });

@@ -1,7 +1,7 @@
 div.content
     div.row
-        div.span3.img-polaroid
-          each user in users
+        each user in users
+          div.span3.img-polaroid
             h2 #{user.name.first} #{user.name.last}
             a(href="/user/#{user._id}")
               if user.trips.length == 1

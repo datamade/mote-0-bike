@@ -9,7 +9,7 @@ div.content
             ul.unstyled.indent
                 each trip in user.trips
                     li
-                        a(href="/viewtrip/#{trip.id}") #{moment(trip.start).format('M/D h:mm a')}
+                        a(href="/viewtrip/#{trip.id}") #{moment(trip.start).format('M/D h:mm a')} to #{moment(trip.end).format('M/D h:mm a')}
         
         div.span9#map
 
