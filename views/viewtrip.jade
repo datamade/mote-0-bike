@@ -10,17 +10,25 @@ div.content
             div#slider
             
             h3 Data
-            ul#sensors
+            div#sensors
+            //
+              ul#sensors
         
         div.span9#map
 
 link(rel="stylesheet", media="all", type="text/css", href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css")
 // [if lte IE 8]
   link(rel="stylesheet", media="all", type="text/css", href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css")
-script(type="text/javascript", src="/javascripts/jquery-ui-slider.min.js")
-link(rel="stylesheet", media="all", type="text/css", href="/stylesheets/jquery-ui-slider.css")
+
 script(type="text/javascript") var trips = !{tripsjson};
 script(type="text/javascript", src="/javascripts/leaflet.js")
 script(type="text/javascript", src="/javascripts/leaflet_lib.js")
+
+script(type="text/javascript", src="/javascripts/jquery-ui-slider.min.js")
+link(rel="stylesheet", media="all", type="text/css", href="/stylesheets/jquery-ui-slider.css")
+
+script(type="text/javascript", src="/javascripts/highcharts.js")
+script(type="text/javascript", src="/javascripts/moment.min.js")
+
 script(type="text/javascript", src="/javascripts/timeline.js")
 script(type="text/javascript", src="/javascripts/maptrips.js")

@@ -1,11 +1,15 @@
 div.content
     div.row
         div.span3
-            h2 All Trips
+            h2 #{user.name.first} #{user.name.last}
+            if user.trips.length == 1
+              h3 #{user.trips.length} trip
+            else
+              h3 #{user.trips.length} trips
             ul.unstyled.indent
-                each trip in trips
+                each trip in user.trips
                     li
-                        a(href="/viewtrip/#{trip._id}") #{trip._id}
+                        a(href="/viewtrip/#{trip.id}") #{moment(trip.start).format('M/D h:mm a')}
         
         div.span9#map
 
@@ -16,3 +20,4 @@ script(type="text/javascript") var trips = !{tripsjson};
 script(type="text/javascript", src="/javascripts/leaflet.js")
 script(type="text/javascript", src="/javascripts/leaflet_lib.js")
 script(type="text/javascript", src="/javascripts/maptrips.js")
+script(type="text/javascript", src="/javascripts/userpage.js")

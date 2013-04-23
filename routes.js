@@ -1,4 +1,5 @@
 var fs = require('fs');
+var moment = require('moment');
 
 module.exports = function(app, models){
 
@@ -50,6 +51,7 @@ module.exports = function(app, models){
   /*
   app.get('/clear', function(req, res){
     models.trips.find({}).remove();
+    models.users.find({}).remove();
   });
   */
   
@@ -95,8 +97,13 @@ module.exports = function(app, models){
           if(val === null){
             delete record[key];
           }
-          else if((typeof val == "string") && (val.indexOf("_") > -1)){
-            record[key] = 1.0 * val.substring(0, val.indexOf("_"));
+          else if(typeof val == "string"){
+            if(val.indexOf("_") > -1){
+              record[key] = 1.0 * val.substring(0, val.indexOf("_"));
+            }
+            else{
+              record[key] = 1.0 * val;
+            }
           }
         }
         records.push(record);
@@ -109,11 +116,71 @@ module.exports = function(app, models){
       var lastline = lines[lines.length-1].split(",");
       trip.end = new Date(lastline[2] + " " + lastline[3]);
 
-      trip.save(function(err){
-        if(err){
-          throw err;
-        }
-        res.redirect('/viewtrip/' + trip._id);
+      if(req.body.user){
+        // attach trip to a user
+        models.users.findOne({ mail: req.body.user }, function(err, user){
+          if(user){
+            // update existing user with new trip
+            trip.user = user.id;
+            trip.save(function(err){
+              if(err){
+                throw err;
+              }
+              // show user has updated
+              user.updated = new Date();
+              user.trips.push({ id: trip._id, start: trip.start });
+              user.save(function(err){ });
+              
+              res.redirect('/viewtrip/' + trip._id);
+            });
+          }
+          else{
+            // save new user and new trip
+            user = new models.users();            
+            user.mail = req.body.user;
+            user.save(function(err){
+              trip.user = user.id;
+              trip.save(function(err){
+                user.trips = [ { id: trip.id, start: trip.start } ];
+                user.save(function(err){
+                  res.redirect('/user/' + user._id);
+                });
+              });
+            });
+          }
+        });
+      }
+      else{
+        // anonymous?
+        trip.save(function(err){
+          if(err){
+            throw err;
+          }
+          res.redirect('/viewtrip/' + trip._id);
+        });
+      }
+    });
+  });
+
+  app.get('/users', function(req, res){
+    models.users.find({}).sort('-updated').exec(function(err, users){
+      res.render('leaderboard.jade', {
+        page: 'users',
+        users: users
+      });
+    });
+  });
+
+  app.get('/user/:id', function(req, res){
+    models.users.findById(req.params.id, function(err, user){
+      if(err){
+        return err;
+      }
+      res.render('user.jade', {
+        moment: moment,
+        page: 'users',
+        user: user,
+        tripsjson: JSON.stringify(user.trips)
       });
     });
   });

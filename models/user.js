@@ -1,13 +1,17 @@
 module.exports = function(mongoose) {
-  var collection = 'trips';
+  var collection = 'users';
   var Schema = mongoose.Schema;
   var ObjectId = Schema.ObjectId;
 
   var schema = new Schema({
-    start: Date,
-    end: Date,
-    records: [ ],
-    user: ObjectId
+    mail: String,
+    name: {
+      first: String,
+      last: String
+    },
+    trips: [],
+    joined: Date,
+    updated: Date
   });
 
   return mongoose.model(collection, schema);

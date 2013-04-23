@@ -8,6 +8,10 @@ div.content
         div.span12
             h3 Upload a CSV file
             form(action="/add", enctype="multipart/form-data", method="POST")
+              span.label E-mail
+              input(type="text", name="user")
+              br
+              span.label CSV file
               input(type="file", name="csv")
               br
               input.btn.btn-primary(type="submit", value="Post")

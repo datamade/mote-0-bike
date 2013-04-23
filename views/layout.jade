@@ -29,6 +29,12 @@ html
                           else
                             li
                               a(href='/map') Map
+                          if page == 'users'
+                            li.active
+                              a(href='/users') Users
+                          else
+                            li
+                              a(href='/users') Users
                         ul(style='float:right').nav.secondary-nav
                           li
                             a(href='#') Login
@@ -36,7 +42,3 @@ html
       div.container(style='margin-top: 60px')!= body
         //
           footer
-            p 
-              | Node.js MVR template by    
-              a(href='http://benedmunds.com')(target='_blank') Ben Edmunds
-            script(src='//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js')

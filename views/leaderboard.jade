@@ -1,0 +1,10 @@
+div.content
+    div.row
+        div.span3.img-polaroid
+          each user in users
+            h2 #{user.name.first} #{user.name.last}
+            a(href="/user/#{user._id}")
+              if user.trips.length == 1
+                h3 #{user.trips.length} trip
+              else
+                h3 #{user.trips.length} trips
