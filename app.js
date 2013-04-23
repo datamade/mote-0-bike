@@ -17,4 +17,4 @@ models.trips = trip_model(mongoose);
 require('./routes')(app, models);
 
 app.listen(process.env.PORT || 3000);
-console.log('app running');
+console.log('app running on port ' + (process.env.PORT || 3000));

@@ -6,47 +6,13 @@ module.exports = function(app, models){
    *  Index
    */
   app.get('/', function(req, res){
-    if (app.requireAuth === true && req.loggedIn === false)
-      res.redirect('/auth/twitter');
-
-    //get all the examples
-    models.examples.find({}, function(err, docs){
-      
-      //render the index page
-      res.render('index.jade', {
-        page: 'index',
-        examples: docs
-      });
-
-    });
-  });
-  
-  
-  /**
-   *  Listing
-   */
-  app.get('/list', function(req, res){
-    if (app.requireAuth === true && req.loggedIn === false)
-      res.redirect('/auth/twitter');
-
-    //get all the examples
-    models.examples.find({}, function(err, docs){
-    
-      models.trips.find({}, function(err, trips){
-    
-        //render the index page
-        res.render('list.jade', {
-            page: 'list',
-            examples: docs,
-            trips: trips
-        });
-      });
-
+    res.render('index.jade', {
+      page: 'index'
     });
   });
   
   app.get('/map', function(req, res){
-    models.trips.find({}, function(err, trips){
+    models.trips.find({}).select('_id').exec(function(err, trips){
       res.render('map.jade', {
         page: 'map',
         trips: trips,
@@ -55,41 +21,17 @@ module.exports = function(app, models){
     });
   });
 
-  /**
-   *  View
-   */
-  app.get('/view/:id', function(req, res){
-		
-
-    if (app.requireAuth === true && req.loggedIn === false)
-      res.redirect('/auth/twitter');
-
-    //get the example
-    models.examples.findById(req.params.id, function(err, doc){
-      
-      //render the view page
-      res.render('view.jade', {
-        page: 'view',
-        example: doc
-      });
-
-    });
-  });
-
 
   app.get('/viewtrip/:id', function(req, res){
-		
-
-    if (app.requireAuth === true && req.loggedIn === false)
-      res.redirect('/auth/twitter');
 
     //get the example
-    models.trips.findById(req.params.id, function(err, doc){
+    models.trips.findById(req.params.id, function(err, trip){
       
       //render the view page
       res.render('viewtrip.jade', {
         page: 'view',
-        trip: doc
+        trips: [trip],
+        tripsjson: JSON.stringify([trip])
       });
 
     });
@@ -99,14 +41,17 @@ module.exports = function(app, models){
    *  Add View
    */
   app.get('/add', function(req, res){
-    if (app.requireAuth === true && req.loggedIn === false)
-      res.redirect('/auth/twitter');
-      
       //render the add page
       res.render('add.jade', {
         page: 'add'
       });
   });
+  
+  /*
+  app.get('/clear', function(req, res){
+    models.trips.find({}).remove();
+  });
+  */
   
   app.post('/add', function(req, res){
     var tmp_path = req.files.csv.path;
@@ -118,22 +63,43 @@ module.exports = function(app, models){
       var lines = csv.toString().split("\r\n");
 
       var records = [ ];
+      var latmin = 90;
+      var latmax = -90;
+      var lngmin = 180;
+      var lngmax = -180;
       for(var i=1;i<lines.length;i++){
         var line = lines[i].split(",");
         // 0=ID, 1=RUN_NUMBER, 2=DATE, 3=TIME, 4=LAT, 5=LON, 6=ALT, 7=BEARING, 8=MPH, 9=AIR, 10=TEMP, 11=HUMIDITY, 12=LIGHT
-        if(line.length < 10){
-          //console.log(line.length);
+        if(line.length < 3){
           continue;
         }
-        var lat = line[4];
-        var lng = line[5];
-        var alt = line[6];
-        var mph = line[8];
-        var air = line[9];
-        var temp = line[10];
-        var hum = line[11];
-        var light = line[12];
-        records.push([ lat, lng, alt, mph, air, temp, hum, light ]);
+
+        latmin = Math.min(latmin, line[4]);
+        latmax = Math.max(latmax, line[4]);
+        lngmin = Math.min(lngmin, line[5]);
+        lngmax = Math.max(lngmax, line[5]);
+        
+        var record = {
+          time: 1 * new Date( line[2] + " " + line[3] ),
+          ll: [line[4] * 1.0, line[5] * 1.0],
+          alt: line[6] || null,
+          bear: line[7] || null,
+          mph: line[8] || null,
+          air: line[9] || null,
+          temp: line[10] || null,
+          hum: line[11] || null,
+          lux: line[12] || null
+        };
+        for(var key in record){
+          var val = record[key];
+          if(val === null){
+            delete record[key];
+          }
+          else if((typeof val == "string") && (val.indexOf("_") > -1)){
+            record[key] = 1.0 * val.substring(0, val.indexOf("_"));
+          }
+        }
+        records.push(record);
       }
 
       var trip = new models.trips();
@@ -151,23 +117,11 @@ module.exports = function(app, models){
       });
     });
   });
-  
-  /**
-   *  Add test doc
-   */
-   
-  app.post('/posts', function(req, res){
-     var now = new Date();
-     var Post = models.examples;
-     var post = new Post();
-     post.name = req.param('doc');
-     post.date = now;
-     post.save(function(err) {
-         console.log('error check');
-         if(err) { throw err; }
-         console.log('saved');
-     });
-     res.redirect('/list');
+
+  app.get('/api/trip/:id', function(req, res){
+    models.trips.findById(req.params.id, function(err, trip){
+      res.json( trip );
+    });
   });
   
 };
