@@ -1,17 +1,27 @@
-div.hero-unit
-    h1 Mote_0_Bike
-    p Creating a sensor map
-    
+.content
+  .row
+    .span4
+      .well
+        h2 Mote_0_Bike
+        p Mote-o-Bike is a bicycle-based sensing and data gathering project, intended to better map the urban environment as it is experienced by the bicyclist and pedestrian.
 
-div.content
-    div.row
-        div.span12
-            h3 Upload a CSV file
-            form(action="/add", enctype="multipart/form-data", method="POST")
-              span.label E-mail
-              input(type="text", name="user")
-              br
-              span.label CSV file
-              input(type="file", name="csv")
-              br
-              input.btn.btn-primary(type="submit", value="Post")
+        h2 Recent trips
+        ul.unstyled.indent
+          each trip in trips
+            li
+              a(href="/viewtrip/#{trip._id}") #{moment(trip.start).format('M/D h:mm a')} - #{moment(trip.end).format('M/D h:mm a')}
+              p by derek.eder@gmail.com
+
+        hr
+        a.btn.btn-info(href="/upload") Upload your trip &raquo;
+        
+    .span8
+      #map
+
+link(rel="stylesheet", media="all", type="text/css", href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css")
+// [if lte IE 8]
+  link(rel="stylesheet", media="all", type="text/css", href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css")
+script(type="text/javascript") var trips = !{tripsjson};
+script(type="text/javascript", src="/javascripts/leaflet.js")
+script(type="text/javascript", src="/javascripts/leaflet_lib.js")
+script(type="text/javascript", src="/javascripts/maptrips.js")

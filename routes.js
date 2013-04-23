@@ -7,18 +7,25 @@ module.exports = function(app, models){
    *  Index
    */
   app.get('/', function(req, res){
-    res.render('index.jade', {
-      page: 'index'
-    });
-  });
-  
-  app.get('/map', function(req, res){
-    models.trips.find({}).select('_id').exec(function(err, trips){
-      res.render('map.jade', {
-        page: 'map',
+    models.trips.find({}).limit(3).exec(function(err, trips){
+      res.render('index.jade', {
+        page: 'index',
+        moment: moment,
         trips: trips,
         tripsjson: JSON.stringify(trips)
       });
+    });
+  });
+
+  app.get('/upload', function(req, res){
+    res.render('upload.jade', {
+      page: 'upload'
+    });
+  });
+
+  app.get('/about', function(req, res){
+    res.render('about.jade', {
+      page: 'about'
     });
   });
 
@@ -83,14 +90,14 @@ module.exports = function(app, models){
         
         var record = {
           time: 1 * new Date( line[2] + " " + line[3] ),
-          ll: [line[4] * 1.0, line[5] * 1.0],
-          alt: line[6] || null,
+          ll:   [line[4] * 1.0, line[5] * 1.0],
+          alt:  line[6] || null,
           bear: line[7] || null,
-          mph: line[8] || null,
-          air: line[9] || null,
+          mph:  line[8] || null,
+          air:  line[9] || null,
           temp: line[10] || null,
-          hum: line[11] || null,
-          lux: line[12] || null
+          hum:  line[11] || null,
+          lux:  line[12] || null
         };
         for(var key in record){
           var val = record[key];
