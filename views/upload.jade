@@ -1,12 +1,16 @@
 div.content
     div.row
         div.span12
-            h3 Upload a CSV file
-            form(action="/add", enctype="multipart/form-data", method="POST")
+            form.well(action="/add", enctype="multipart/form-data", method="POST")
+              h3 Upload a CSV file
               span.label E-mail
               input(type="text", name="user")
               br
               span.label CSV file
-              input(type="file", name="csv")
+              input#gpxinput(type="file", name="csv", style="display:none;")
+              input#gpxcover.input.input-large.uneditable-input(type="text", onclick="$('#gpxinput').click();")
+              a.btn.btn-search(onclick="$('#gpxinput').click();", style="vertical-align:top;") Select
+              script(type="text/javascript") $("#gpxinput").change(function(){ $("#gpxcover").val($(this).val()) });
+              br
               br
               input.btn.btn-primary(type="submit", value="Post")

@@ -18,8 +18,10 @@ Based on Node.js Express MVR Template Project by [Ben Edmunds](http://benedmunds
 
 ### Local
    npm install
+
    npm start
 
 ### On Heroku
    git push heroku master
+
    heroku addons:add mongolab:starter
