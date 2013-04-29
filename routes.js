@@ -1,5 +1,6 @@
 var fs = require('fs');
 var moment = require('moment');
+var csv = require('fast-csv');
 
 module.exports = function(app, models){
 
@@ -64,41 +65,31 @@ module.exports = function(app, models){
   
   app.post('/add', function(req, res){
     var tmp_path = req.files.csv.path;
-    fs.readFile(tmp_path, { encoding: 'utf8' }, function(err, csv) {
-      if(err){
-        throw err;
-      }
+    var stream = fs.createReadStream(tmp_path);
 
-      var lines = csv.toString().split("\r\n");
+    var records = [ ];
+    var start_time = null;
+    var end_time = null;
 
-      var records = [ ];
-      var latmin = 90;
-      var latmax = -90;
-      var lngmin = 180;
-      var lngmax = -180;
-      for(var i=1;i<lines.length;i++){
-        var line = lines[i].split(",");
-        // 0=ID, 1=RUN_NUMBER, 2=DATE, 3=TIME, 4=LAT, 5=LON, 6=ALT, 7=BEARING, 8=MPH, 9=AIR, 10=TEMP, 11=HUMIDITY, 12=LIGHT
-        if(line.length < 3){
-          continue;
+    // setting {headers: true} returns rows in format { ID: '', RUN_NUMBER: '' ... }
+
+    csv(stream, { headers: true })
+      .on("data", function(record){
+        delete record.ID;
+        delete record.RUN_NUMBER;
+
+        record.time = 1 * new Date( record.DATE + " " + record.TIME );
+        if(!start_time){
+          start_time = record.time;
         }
-
-        latmin = Math.min(latmin, line[4]);
-        latmax = Math.max(latmax, line[4]);
-        lngmin = Math.min(lngmin, line[5]);
-        lngmax = Math.max(lngmax, line[5]);
+        end_time = record.time;
+        delete record.DATE;
+        delete record.TIME;
         
-        var record = {
-          time: 1 * new Date( line[2] + " " + line[3] ),
-          ll:   [line[4] * 1.0, line[5] * 1.0],
-          alt:  line[6] || null,
-          bear: line[7] || null,
-          mph:  line[8] || null,
-          air:  line[9] || null,
-          temp: line[10] || null,
-          hum:  line[11] || null,
-          lux:  line[12] || null
-        };
+        record.ll = [ record.LAT * 1.0, record.LON * 1.0 ]
+        delete record.LAT;
+        delete record.LON;
+
         for(var key in record){
           var val = record[key];
           if(val === null){
@@ -113,60 +104,60 @@ module.exports = function(app, models){
             }
           }
         }
+        
         records.push(record);
-      }
+      })
+      .on("end", function(){
 
-      var trip = new models.trips();
-      trip.records = records;
-      var firstline = lines[1].split(",");
-      trip.start = new Date(firstline[2] + " " + firstline[3]);
-      var lastline = lines[lines.length-1].split(",");
-      trip.end = new Date(lastline[2] + " " + lastline[3]);
+        var trip = new models.trips();
+        trip.records = records;
+        trip.start = new Date(start_time);
+        trip.end = new Date(end_time);
 
-      if(req.body.user){
-        // attach trip to a user
-        models.users.findOne({ mail: req.body.user }, function(err, user){
-          if(user){
-            // update existing user with new trip
-            trip.user = user.id;
-            trip.save(function(err){
-              if(err){
-                throw err;
-              }
-              // show user has updated
-              user.updated = new Date();
-              user.trips.push({ id: trip._id, start: trip.start, end: trip.end });
-              user.save(function(err){ });
-              
-              res.redirect('/viewtrip/' + trip._id);
-            });
-          }
-          else{
-            // save new user and new trip
-            user = new models.users();            
-            user.mail = req.body.user;
-            user.save(function(err){
+        if(req.body.user){
+          // attach trip to a user
+          models.users.findOne({ mail: req.body.user }, function(err, user){
+            if(user){
+              // update existing user with new trip
               trip.user = user.id;
               trip.save(function(err){
-                user.trips = [ { id: trip.id, start: trip.start, end: trip.end } ];
-                user.save(function(err){
-                  res.redirect('/user/' + user._id);
+                if(err){
+                  throw err;
+                }
+                // show user has updated
+                user.updated = new Date();
+                user.trips.push({ id: trip._id, start: trip.start, end: trip.end });
+                user.save(function(err){ });
+                res.redirect('/viewtrip/' + trip._id);
+              });
+            }
+            else{
+              // save new user and new trip
+              user = new models.users();            
+              user.mail = req.body.user;
+              user.save(function(err){
+                trip.user = user.id;
+                trip.save(function(err){
+                  user.trips = [ { id: trip.id, start: trip.start, end: trip.end } ];
+                  user.save(function(err){
+                    res.redirect('/user/' + user._id);
+                  });
                 });
               });
-            });
-          }
-        });
-      }
-      else{
-        // anonymous?
-        trip.save(function(err){
-          if(err){
-            throw err;
-          }
-          res.redirect('/viewtrip/' + trip._id);
-        });
-      }
-    });
+            }
+          });
+        }
+        else{
+          // anonymous?
+          trip.save(function(err){
+            if(err){
+              throw err;
+            }
+            res.redirect('/viewtrip/' + trip._id);
+          });
+        }
+      })
+      .parse();
   });
 
   app.get('/users', function(req, res){
