@@ -1,6 +1,7 @@
 var fs = require('fs');
 var moment = require('moment');
 var csv = require('fast-csv');
+var simplify = require('simplify-js');
 
 module.exports = function(app, models){
 
@@ -8,7 +9,7 @@ module.exports = function(app, models){
    *  Index
    */
   app.get('/', function(req, res){
-    models.trips.find({}).sort('-_id').exec(function(err, trips){
+    models.trips.find({}).select('start end simplified').sort('-_id').exec(function(err, trips){
       res.render('index.jade', {
         page: 'index',
         moment: moment,
@@ -146,6 +147,8 @@ module.exports = function(app, models){
                 user.updated = new Date();
                 user.trips.push({ id: trip._id, start: trip.start, end: trip.end });
                 user.save(function(err){ });
+
+                simplifytrip(trip);
                 res.redirect('/viewtrip/' + trip._id);
               });
             }
@@ -158,6 +161,7 @@ module.exports = function(app, models){
                 trip.save(function(err){
                   user.trips = [ { id: trip.id, start: trip.start, end: trip.end } ];
                   user.save(function(err){
+                    simplifytrip(trip);
                     res.redirect('/user/' + user._id);
                   });
                 });
@@ -171,6 +175,7 @@ module.exports = function(app, models){
             if(err){
               throw err;
             }
+            simplifytrip(trip);
             res.redirect('/viewtrip/' + trip._id);
           });
         }
@@ -192,6 +197,7 @@ module.exports = function(app, models){
       if(err){
         return err;
       }
+      user.trips = user.trips.reverse(); // show newer uploads on top
       res.render('user.jade', {
         moment: moment,
         page: 'users',
@@ -247,5 +253,19 @@ module.exports = function(app, models){
       res.json( trip );
     });
   });
+  
+  var simplifytrip = function(trip){
+    // generate a simplified line for the homepage, based on this trip
+    var tripcopy = trip.records.concat();
+    for(var r=0;r<tripcopy.length;r++){
+      tripcopy[r] = { x: tripcopy[r].ll[1], y: tripcopy[r].ll[0] };
+    }
+    var simplified = simplify.simplify( tripcopy, 0.0001 );
+    for(var r=0;r<simplified.length;r++){
+      simplified[r] = [ simplified[r].y, simplified[r].x ];
+    }
+    trip.simplified = simplified;
+    trip.save(function(err){ });
+  };
   
 };

@@ -10,7 +10,7 @@ div.content
               input#gpxinput(type="file", name="csv", style="display:none;")
               input#gpxcover.input.input-large.uneditable-input(type="text", onclick="$('#gpxinput').click();")
               a.btn.btn-search(onclick="$('#gpxinput').click();", style="vertical-align:top;") Select
-              script(type="text/javascript") $("#gpxinput").change(function(){ $("#gpxcover").val($(this).val()) });
+              script(type="text/javascript") $("#gpxinput").change(function(){ $("#gpxcover").val($(this).val().replace("C:\\fakepath\\","") ) });
               br
               br
               input.btn.btn-primary(type="submit", value="Post")

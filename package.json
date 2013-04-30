@@ -10,6 +10,7 @@
     , "everyauth": ">=0.2.32"
     , "moment": "2.0.x"
     , "fast-csv": "0.0.x"
+    , "simplify-js": "1.0.x"
   },
   "engines": {
     "node": "0.8.x",
