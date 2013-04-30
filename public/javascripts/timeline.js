@@ -177,7 +177,10 @@ function updateSensorValues(time){
 }
 
 function getUnits(key){
-  if(typeof trip.units[key] != 'undefined'){
+  if(typeof trip.units == 'undefined'){
+    return key;
+  }
+  else if(typeof trip.units[key] != 'undefined'){
     return key + " (" + trip.units[key] + ")";
   }
   else{
