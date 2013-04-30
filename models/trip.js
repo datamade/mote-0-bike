@@ -7,7 +7,8 @@ module.exports = function(mongoose) {
     start: Date,
     end: Date,
     records: [ ],
-    user: ObjectId
+    user: ObjectId,
+    units: Object
   });
 
   return mongoose.model(collection, schema);

@@ -38,7 +38,7 @@ function mapMyTimeline(route){
       },
       yAxis: {
         title: {
-          text: key
+          text: getUnits(key)
         }
       },
       legend: {
@@ -164,5 +164,14 @@ function updateSensorValues(time){
     }
     $("#current_value_" + key).html("<strong>" + key + "</strong>: " + mostRecentRecord[key]);
     //$("#sensors").append("<li><strong>" + key + "</strong>: " + mostRecentRecord[key] + "</li>");
+  }
+}
+
+function getUnits(key){
+  if(typeof trip.units[key] != 'undefined'){
+    return key + " (" + trip.units[key] + ")";
+  }
+  else{
+    return key;
   }
 }

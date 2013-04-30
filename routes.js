@@ -68,6 +68,13 @@ module.exports = function(app, models){
     var stream = fs.createReadStream(tmp_path);
 
     var records = [ ];
+    var units = {
+      "ALT": "FT",
+      "BEARING": "DEG",
+      "TEMP": "F",
+      "HUMIDITY", "RH",
+      "LIGHT", "LUX"
+    };
     var start_time = null;
     var end_time = null;
 
@@ -75,6 +82,10 @@ module.exports = function(app, models){
 
     csv(stream, { headers: true })
       .on("data", function(record){
+        if(!record.RUN_NUMBER){
+          // skip blank lines
+          return;
+        }
         delete record.ID;
         delete record.RUN_NUMBER;
 
@@ -90,6 +101,7 @@ module.exports = function(app, models){
         delete record.LAT;
         delete record.LON;
 
+        // move units from records to separate units array
         for(var key in record){
           var val = record[key];
           if(val === null){
@@ -98,6 +110,7 @@ module.exports = function(app, models){
           else if(typeof val == "string"){
             if(val.indexOf("_") > -1){
               record[key] = 1.0 * val.substring(0, val.indexOf("_"));
+              units[key] = val.substring(val.indexOf("_") + 1);
             }
             else{
               record[key] = 1.0 * val;
@@ -113,6 +126,10 @@ module.exports = function(app, models){
         trip.records = records;
         trip.start = new Date(start_time);
         trip.end = new Date(end_time);
+        // move units from records to separate units array
+        if(Object.keys(units).length){
+          trip.units = units;
+        }
 
         if(req.body.user){
           // attach trip to a user
