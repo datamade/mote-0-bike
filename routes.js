@@ -8,7 +8,7 @@ module.exports = function(app, models){
    *  Index
    */
   app.get('/', function(req, res){
-    models.trips.find({}).limit(3).exec(function(err, trips){
+    models.trips.find({}).sort('-_id').exec(function(err, trips){
       res.render('index.jade', {
         page: 'index',
         moment: moment,

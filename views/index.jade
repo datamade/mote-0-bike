@@ -7,10 +7,11 @@
 
         h2 Recent trips
         ul.unstyled.indent
-          each trip in trips
-            li
-              a(href="/viewtrip/#{trip._id}") #{moment(trip.start).format('M/D h:mm a')} - #{moment(trip.end).format('M/D h:mm a')}
-              p by derek.eder@gmail.com
+          each trip, i in trips
+            if i < 3
+              li
+                a(href="/viewtrip/#{trip._id}") #{moment(trip.start).format('M/D h:mm a')} - #{moment(trip.end).format('M/D h:mm a')}
+                p by derek.eder@gmail.com
 
         hr
         a.btn.btn-info(href="/upload") Upload your trip &raquo;
