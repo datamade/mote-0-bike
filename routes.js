@@ -40,7 +40,8 @@ module.exports = function(app, models){
       res.render('viewtrip.jade', {
         page: 'view',
         trips: [trip],
-        tripsjson: JSON.stringify([trip])
+        tripsjson: JSON.stringify([trip]),
+        moment: moment
       });
 
     });
@@ -72,8 +73,8 @@ module.exports = function(app, models){
       "ALT": "FT",
       "BEARING": "DEG",
       "TEMP": "F",
-      "HUMIDITY", "RH",
-      "LIGHT", "LUX"
+      "HUMIDITY": "RH",
+      "LIGHT": "LUX"
     };
     var start_time = null;
     var end_time = null;
@@ -200,6 +201,47 @@ module.exports = function(app, models){
     });
   });
 
+  app.get('/api/trip/:id.csv', function(req, res){
+    models.trips.findById(req.params.id, function(err, trip){
+      var firstrow = Object.keys( trip.records[0] );
+      firstrow.splice( firstrow.indexOf("ll"), 1 );
+      firstrow.splice( firstrow.indexOf("time"), 1 );
+      firstrow.push("LAT");
+      firstrow.push("LON");
+      firstrow.push("DATE");
+      firstrow.push("TIME");
+      res.write('"' + firstrow.join('","') + '"\r\n');
+      for(var r=0;r<trip.records.length;r++){
+        for(var k=0;k<firstrow.length;k++){
+          if(firstrow[k] == "LAT"){
+            res.write(trip.records[r].ll[0] + "");
+          }
+          else if(firstrow[k] == "LON"){
+            res.write(trip.records[r].ll[1] + "");
+          }
+          else if(firstrow[k] == "DATE"){
+            res.write( '"' + (new Date(trip.records[r].time)).toDateString() + '"' ) ;
+          }
+          else if(firstrow[k] == "TIME"){
+            res.write( '"' + (new Date(trip.records[r].time)).toTimeString() + '"' ) ;
+          }
+          else{
+            if(isNaN(trip.records[r][firstrow[k]] * 1)){
+              res.write('"' + trip.records[r][firstrow[k]] + '"');
+            }
+            else{
+              res.write(trip.records[r][firstrow[k]] + "");          
+            }
+          }
+          if(k<firstrow.length-1){
+            res.write(",");
+          }
+        }
+        res.write('\r\n');
+      }
+      res.end();
+    });
+  });
   app.get('/api/trip/:id', function(req, res){
     models.trips.findById(req.params.id, function(err, trip){
       res.json( trip );

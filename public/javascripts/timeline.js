@@ -17,10 +17,19 @@ function mapMyTimeline(route){
     if(do_not_display_keys.indexOf(key) > -1){
       continue;
     }
-    var datapoints = [ ];
+    
+    var simplified = [ ];
     for(var r=0;r<trip.records.length;r++){
-      datapoints.push( [ trip.records[r].time * 1.0, trip.records[r][key] * 1.0 ] );
+      simplified.push( { x: trip.records[r].time * 1.0, y: trip.records[r][key] * 20 } );
     }
+    simplified = simplify(simplified, 1);
+    
+    var datapoints = [ ];
+    for(var r=0;r<simplified.length;r++){
+      datapoints.push( [ simplified[r].x, simplified[r].y / 20 ] );
+    }
+    
+    console.log("simplified " + trip.records.length + " to " + datapoints.length);
 
     $("#sensors").append("<div id='current_value_" + key + "' class='badge badge-info'></div>");
     $("#sensors").append("<div id='graph_" + key + "' style='height:100px;'></div><hr/>");

@@ -1,17 +1,26 @@
 .content
   .row
     .span6
-      h3 Timeline 
-        a#playbtn.btn.btn-success
-          i.icon-play-circle.icon-white
-          span &nbsp;&nbsp;
-          span.txt Play
+      h3
+        span Timeline
+        small(style="margin-left:10px;") #{moment(trips[0].start).format('M/D h:mm a')} to #{moment(trips[0].end).format('M/D h:mm a')}
+      a#playbtn.btn.btn-success(style="margin-bottom:10px;")
+        i.icon-play-circle.icon-white
+        span &nbsp;&nbsp;
+        span.txt Play
       #slider
       
       hr
       #sensors
     
-    .span6#map
+    .span6
+      .span6#map
+      br
+      .span6
+        h4 Download
+        a.btn.btn-success(href="/api/trip/#{trips[0]._id}") JSON
+        a.btn.btn-success(href="/api/trip/#{trips[0]._id}.csv") CSV
+
 
 link(rel="stylesheet", media="all", type="text/css", href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css")
 // [if lte IE 8]
@@ -26,6 +35,7 @@ link(rel="stylesheet", media="all", type="text/css", href="/stylesheets/jquery-u
 
 script(type="text/javascript", src="/javascripts/highcharts.js")
 script(type="text/javascript", src="/javascripts/moment.min.js")
+script(type="text/javascript", src="/javascripts/simplify-min.js")
 
 script(type="text/javascript", src="/javascripts/timeline.js")
 script(type="text/javascript", src="/javascripts/maptrips.js")
