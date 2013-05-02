@@ -2,9 +2,18 @@ div.content
     div.row
         each user in users
           div.span3.well
-            h3 #{user.mail}
-            a(href="/user/#{user._id}")
-              if user.trips.length == 1
-                h4 #{user.trips.length} trip
-              else
-                h4 #{user.trips.length} trips
+            - if user.username
+              h3 #{user.username}
+              a(href="/user/#{user.username}")
+                if user.trips.length == 1
+                  h4 #{user.trips.length} trip
+                else
+                  h4 #{user.trips.length} trips
+
+            - else
+              h3 #{user.mail}
+              a(href="/user/#{user._id}")
+                if user.trips.length == 1
+                  h4 #{user.trips.length} trip
+                else
+                  h4 #{user.trips.length} trips

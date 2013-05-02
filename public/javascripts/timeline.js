@@ -18,19 +18,11 @@ function mapMyTimeline(route){
       continue;
     }
     
-    var simplified = [ ];
-    for(var r=0;r<trip.records.length;r++){
-      simplified.push( { x: trip.records[r].time * 1.0, y: trip.records[r][key] * 20 } );
-    }
-    simplified = simplify(simplified, 1);
-    
     var datapoints = [ ];
-    for(var r=0;r<simplified.length;r++){
-      datapoints.push( [ simplified[r].x, simplified[r].y / 20 ] );
+    for(var r=0;r<trip.records.length;r++){
+      datapoints.push( [ trip.records[r].time * 1.0, trip.records[r][key] ] );
     }
     
-    console.log("simplified " + trip.records.length + " to " + datapoints.length);
-
     $("#sensors").append("<div id='current_value_" + key + "' class='badge badge-info'></div>");
     $("#sensors").append("<div id='graph_" + key + "' style='height:100px;'></div><hr/>");
     $("#graph_" + key).highcharts({
@@ -147,19 +139,20 @@ function updateSensorValues(time){
       break;
     }
     mostRecentRecord = trip.records[r];
-    for(var key in mostRecentRecord){
-      if(do_not_display_keys.indexOf(key) > -1){
-        continue;
-      }
-      $('#graph_' + key).highcharts().xAxis[0].removePlotLine('plot-line-x');
-      $('#graph_' + key).highcharts().xAxis[0].addPlotLine({
-        value: mostRecentRecord.time,
-        color: 'red',
-        width: 2,
-        id: 'plot-line-x'
-      });
-    }
   }
+  for(var key in mostRecentRecord){
+    if(do_not_display_keys.indexOf(key) > -1){
+      continue;
+    }
+    $('#graph_' + key).highcharts().xAxis[0].removePlotLine('plot-line-x');
+    $('#graph_' + key).highcharts().xAxis[0].addPlotLine({
+      value: mostRecentRecord.time,
+      color: 'red',
+      width: 2,
+      id: 'plot-line-x'
+    });
+  }
+  
   // update map marker
   if(trackMarker){
     trackMarker.setLatLng( new L.LatLng( mostRecentRecord.ll[0] * 1.0, mostRecentRecord.ll[1] * 1.0 ) );

@@ -5,13 +5,12 @@ module.exports = function(mongoose) {
 
   var schema = new Schema({
     mail: String,
-    name: {
-      first: String,
-      last: String
-    },
+    name: String,
+    username: String,
     trips: [],
     joined: Date,
-    updated: Date
+    updated: Date,
+    editable: Boolean
   });
 
   return mongoose.model(collection, schema);

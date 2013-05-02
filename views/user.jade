@@ -1,7 +1,17 @@
 div.content
     div.row
         div.span3
-            h2 #{user.name.first} #{user.name.last}
+            h2 #{user.name}
+            
+            if user.editable
+              form.well(action="/userid/#{user._id}", method="POST")
+                label Choose a Username
+                br
+                input.x-large(name="username")
+                br
+                br
+                input.btn.btn-success(type="submit", value="Save")
+            
             if user.trips.length == 1
               h3 #{user.trips.length} trip
             else

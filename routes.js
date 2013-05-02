@@ -10,6 +10,12 @@ module.exports = function(app, models){
    */
   app.get('/', function(req, res){
     models.trips.find({}).select('start end simplified').sort('-_id').exec(function(err, trips){
+      /*
+      var firstusers = trips.slice(0, 3);
+      for(var f=0;f<firstusers.length;f++){
+      
+      }
+      */
       res.render('index.jade', {
         page: 'index',
         moment: moment,
@@ -156,13 +162,14 @@ module.exports = function(app, models){
               // save new user and new trip
               user = new models.users();            
               user.mail = req.body.user;
+              user.editable = true;
               user.save(function(err){
                 trip.user = user.id;
                 trip.save(function(err){
                   user.trips = [ { id: trip.id, start: trip.start, end: trip.end } ];
                   user.save(function(err){
                     simplifytrip(trip);
-                    res.redirect('/user/' + user._id);
+                    res.redirect('/userid/' + user._id);
                   });
                 });
               });
@@ -192,7 +199,22 @@ module.exports = function(app, models){
     });
   });
 
-  app.get('/user/:id', function(req, res){
+  app.get('/user/:username', function(req, res){
+    models.users.findOne({ username: req.params.username }, function(err, user){
+      if(err){
+        return err;
+      }
+      user.trips = user.trips.reverse(); // show newer uploads on top
+      res.render('user.jade', {
+        moment: moment,
+        page: 'users',
+        user: user,
+        tripsjson: JSON.stringify(user.trips)
+      });
+    });
+  });
+
+  app.get('/userid/:id', function(req, res){
     models.users.findById(req.params.id, function(err, user){
       if(err){
         return err;
@@ -204,6 +226,29 @@ module.exports = function(app, models){
         user: user,
         tripsjson: JSON.stringify(user.trips)
       });
+    });
+  });
+  
+  app.post('/userid/:id', function(req, res){
+    models.users.findById(req.params.id, function(err, user){
+      if(err){
+        return err;
+      }
+      if(user.editable){
+        // save this user
+        user.editable = false;
+        user.username = escape( req.body.username );
+        user.save(function(err){
+          if(err){
+            return res.send(err);
+          }
+          res.redirect('/user/' + user.username);
+        });
+      }
+      else{
+        // can't edit the username anymore
+        res.redirect('/user/' + user.username);
+      }
     });
   });
 
