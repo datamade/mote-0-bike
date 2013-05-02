@@ -11,7 +11,12 @@
             if i < 3
               li
                 a(href="/viewtrip/#{trip._id}") #{moment(trip.start).format('M/D h:mm a')} - #{moment(trip.end).format('M/D h:mm a')}
-                p by derek.eder@gmail.com
+                p
+                  span by&nbsp;
+                  if firstusers[i].username
+                    a(href="/user/#{firstusers[i].username}") #{firstusers[i].username}                    
+                  else
+                    a(href="/userid/#{firstusers[i]._id}") #{firstusers[i].mail}
 
         hr
         a.btn.btn-info(href="/upload") Upload your trip &raquo;

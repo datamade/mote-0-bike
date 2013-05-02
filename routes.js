@@ -9,19 +9,41 @@ module.exports = function(app, models){
    *  Index
    */
   app.get('/', function(req, res){
-    models.trips.find({}).select('start end simplified').sort('-_id').exec(function(err, trips){
-      /*
+    models.trips.find({}).select('start end simplified user').sort('-_id').exec(function(err, trips){
       var firstusers = trips.slice(0, 3);
-      for(var f=0;f<firstusers.length;f++){
-      
-      }
-      */
-      res.render('index.jade', {
-        page: 'index',
-        moment: moment,
-        trips: trips,
-        tripsjson: JSON.stringify(trips)
-      });
+      var getUserName = function(index){
+        if(index >= 3 || index >= firstusers.length){
+          res.render('index.jade', {
+            page: 'index',
+            moment: moment,
+            trips: trips,
+            tripsjson: JSON.stringify(trips),
+            firstusers: firstusers
+          });
+        }
+        else{
+          var alreadyLoadedUser = -1;
+          for(var i=0;i<index;i++){
+            if(firstusers[i]._id == firstusers[index]){
+              alreadyLoadedUser = i;
+              break;
+            }
+          }
+          if(alreadyLoadedUser > -1){
+            // already loaded this user's info - copy that and go to next
+            firstusers[ index ] = firstusers[ alreadyLoadedUser ];
+            getUserName(index+1);
+          }
+          else{
+            // callback for this user's extended info
+            models.users.findById( firstusers[index].user, function(err, user){
+              firstusers[ index ] = user;
+              getUserName(index+1);
+            });
+          }
+        }
+      };
+      getUserName(0);
     });
   });
 
@@ -66,8 +88,8 @@ module.exports = function(app, models){
   
   /*
   app.get('/clear', function(req, res){
-    models.trips.find({}).remove();
     models.users.find({}).remove();
+    models.trips.find({}).remove();
   });
   */
   
@@ -144,7 +166,7 @@ module.exports = function(app, models){
           models.users.findOne({ mail: req.body.user }, function(err, user){
             if(user){
               // update existing user with new trip
-              trip.user = user.id;
+              trip.user = user._id;
               trip.save(function(err){
                 if(err){
                   throw err;
@@ -164,12 +186,19 @@ module.exports = function(app, models){
               user.mail = req.body.user;
               user.editable = true;
               user.save(function(err){
-                trip.user = user.id;
+                trip.user = user._id;
                 trip.save(function(err){
                   user.trips = [ { id: trip.id, start: trip.start, end: trip.end } ];
                   user.save(function(err){
                     simplifytrip(trip);
-                    res.redirect('/userid/' + user._id);
+                    res.render('user.jade', {
+                      moment: moment,
+                      page: 'users',
+                      user: user,
+                      tripsjson: JSON.stringify(user.trips),
+                      editable: true
+                    });
+
                   });
                 });
               });
@@ -209,7 +238,8 @@ module.exports = function(app, models){
         moment: moment,
         page: 'users',
         user: user,
-        tripsjson: JSON.stringify(user.trips)
+        tripsjson: JSON.stringify(user.trips),
+        editable: false
       });
     });
   });
@@ -224,7 +254,8 @@ module.exports = function(app, models){
         moment: moment,
         page: 'users',
         user: user,
-        tripsjson: JSON.stringify(user.trips)
+        tripsjson: JSON.stringify(user.trips),
+        editable: false
       });
     });
   });

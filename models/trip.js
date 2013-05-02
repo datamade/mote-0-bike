@@ -7,7 +7,7 @@ module.exports = function(mongoose) {
     start: Date,
     end: Date,
     records: [ ],
-    user: ObjectId,
+    user: String,
     units: Object,
     simplified: [ ]
   });

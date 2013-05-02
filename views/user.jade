@@ -3,7 +3,7 @@ div.content
         div.span3
             h2 #{user.name}
             
-            if user.editable
+            if editable
               form.well(action="/userid/#{user._id}", method="POST")
                 label Choose a Username
                 br
