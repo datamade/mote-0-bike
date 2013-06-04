@@ -4,6 +4,7 @@ module.exports = function(mongoose) {
   var ObjectId = Schema.ObjectId;
 
   var schema = new Schema({
+    random_key: Number,
     start: Date,
     end: Date,
     records: [ ],

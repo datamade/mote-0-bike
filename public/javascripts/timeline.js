@@ -1,7 +1,7 @@
 // timeline.js
 
 var playback, currentTime, start, end, trip, trackMarker;
-var do_not_display_keys = ["time","ll"]
+var do_not_display_keys = ["time","ll","ALT","BEARING","MPH","LIGHT"]
 
 function mapMyTimeline(route){
   LeafletLib.fitFeatures();

@@ -76,6 +76,35 @@ module.exports = function(app, models){
     });
   });
 
+  app.get('/demo', function(req, res){
+
+    //get a random trip
+    rand = Math.random()
+    models.trips.findOne( { random_key : { $gte : rand } }, function(err, trip){
+
+      if ( trip == null ) {
+        models.trips.findOne( { random_key : { $lte : rand } }, function(err, trip){
+          //render the view page
+          res.render('demo.jade', {
+            page: 'demo',
+            trips: [trip],
+            tripsjson: JSON.stringify([trip]),
+            moment: moment
+          });
+        });
+      }
+      else {
+        //render the view page
+        res.render('demo.jade', {
+          page: 'demo',
+          trips: [trip],
+          tripsjson: JSON.stringify([trip]),
+          moment: moment
+        });
+      }
+    });
+  });
+
   /**
    *  Add View
    */
@@ -153,6 +182,7 @@ module.exports = function(app, models){
       .on("end", function(){
 
         var trip = new models.trips();
+        trip.random_key = Math.random();
         trip.records = records;
         trip.start = new Date(start_time);
         trip.end = new Date(end_time);

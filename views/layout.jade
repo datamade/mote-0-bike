@@ -23,6 +23,12 @@ html
                           else 
                             li
                               a(href='/') Home
+                          if page == 'demo'
+                            li.active
+                              a(href='/demo') Demo
+                          else
+                            li
+                              a(href='/demo') Demo
                           if page == 'users'
                             li.active
                               a(href='/users') Users
