@@ -62,7 +62,7 @@ module.exports = function(app, models){
 
   app.get('/viewtrip/:id', function(req, res){
 
-    //get the example
+    //get the trip
     models.trips.findById(req.params.id, function(err, trip){
       
       //render the view page
@@ -78,20 +78,20 @@ module.exports = function(app, models){
 
   app.get('/demo', function(req, res){
 
-    // get all trips
-    models.trips.find({}).exec(function(err, trips){
+    // get a list of all trips
+    models.trips.find({}).select('_id').exec(function(err, trip_ids){
+
       //get a random trip
+      var random_sequence = Math.floor(Math.random()*trip_ids.length)
 
-      var random_sequence = Math.floor(Math.random()*trips.length)
-      console.log(random_sequence)
-      var trip = trips[random_sequence]
-
-      //render the view page
-      res.render('demo.jade', {
-        page: 'demo',
-        trips: [trip],
-        tripsjson: JSON.stringify([trip]),
-        moment: moment
+      models.trips.findById(trip_ids[random_sequence]._id, function(err, trip){
+        //render the view page
+        res.render('demo.jade', {
+          page: 'demo',
+          trips: [trip],
+          tripsjson: JSON.stringify([trip]),
+          moment: moment
+        });
       });
     });
   });
