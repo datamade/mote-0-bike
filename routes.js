@@ -78,30 +78,21 @@ module.exports = function(app, models){
 
   app.get('/demo', function(req, res){
 
-    //get a random trip
-    rand = Math.random()
-    models.trips.findOne( { random_key : { $gte : rand } }, function(err, trip){
+    // get all trips
+    models.trips.find({}).exec(function(err, trips){
+      //get a random trip
 
-      if ( trip == null ) {
-        models.trips.findOne( { random_key : { $lte : rand } }, function(err, trip){
-          //render the view page
-          res.render('demo.jade', {
-            page: 'demo',
-            trips: [trip],
-            tripsjson: JSON.stringify([trip]),
-            moment: moment
-          });
-        });
-      }
-      else {
-        //render the view page
-        res.render('demo.jade', {
-          page: 'demo',
-          trips: [trip],
-          tripsjson: JSON.stringify([trip]),
-          moment: moment
-        });
-      }
+      var random_sequence = Math.floor(Math.random()*trips.length)
+      console.log(random_sequence)
+      var trip = trips[random_sequence]
+
+      //render the view page
+      res.render('demo.jade', {
+        page: 'demo',
+        trips: [trip],
+        tripsjson: JSON.stringify([trip]),
+        moment: moment
+      });
     });
   });
 
