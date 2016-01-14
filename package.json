@@ -12,10 +12,6 @@
     , "fast-csv": "0.0.x"
     , "simplify-js": "1.0.x"
   },
-  "engines": {
-    "node": "0.8.x",
-    "npm":  "1.1.x"
-  },
   "scripts": {
     "start": "node app.js"
   }
